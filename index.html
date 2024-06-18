@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird Clone</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #70c5ce;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      
+      .container {
+        position: relative;
+        width: 100%;
+        max-width: 600px;
+      }
+      
+      .game-container {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        background-color: #70c5ce;
+        overflow: hidden;
+        border: 2px solid #000;
+        border-radius: 5px;
+      }
+      
+      .bird {
+        position: absolute;
+        width: 34px;
+        height: 24px;
+        background-image: url('/bird.png');
+        background-size: cover;
+        top: 50%;
+        left: 50px;
+        transform: translateY(-50%);
+      }
+      
+      .pipe {
+        position: absolute;
+        width: 52px;
+        height: 200px;
+        background-color: #228B22;
+        top: 0;
+        right: 0;
+        animation: movePipe 2s infinite linear;
+      }
+      
+      .pipe#pipe2 {
+        top: unset;
+        bottom: 0;
+        height: 150px;
+      }
+      
+      .ground {
+        position: absolute;
+        width: 100%;
+        height: 50px;
+        background-color: #DEB887;
+        bottom: 0;
+      }
+      
+      .score-board {
+        text-align: center;
+        margin-top: 10px;
+      }
+      
+      .start-button {
+        text-align: center;
+        margin-top: 10px;
+      }
+      
+      @keyframes movePipe {
+        0% {
+          right: -52px;
+        }
+        100% {
+          right: 100%;
+        }
+      }
+      
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="game-container" id="gameContainer">
+      <div class="bird" id="bird"></div>
+      <div class="pipe" id="pipe"></div>
+      <div class="pipe" id="pipe2"></div>
+      <div class="ground" id="ground"></div>
+    </div>
+    <div class="score-board">
+      <h1 id="score">0</h1>
+    </div>
+    <div class="start-button">
+      <button class="btn btn-primary" onclick="startGame()">Start Game</button>
+    </div>
+  </div>
+  <script>
+    let bird = document.getElementById('bird');
+let gameContainer = document.getElementById('gameContainer');
+let scoreDisplay = document.getElementById('score');
+let pipe = document.getElementById('pipe');
+let pipe2 = document.getElementById('pipe2');
+let ground = document.getElementById('ground');
+let score = 0;
+let isGameOver = false;
+let gravity = 0.5;
+let birdTop = bird.offsetTop;
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === ' ') {
+    fly();
+  }
+});
+
+function fly() {
+  birdTop -= 60;
+  bird.style.top = birdTop + 'px';
+}
+
+function startGame() {
+  isGameOver = false;
+  score = 0;
+  scoreDisplay.textContent = score;
+  birdTop = bird.offsetTop;
+  bird.style.top = birdTop + 'px';
+  pipe.style.animation = 'movePipe 2s infinite linear';
+  pipe2.style.animation = 'movePipe 2s infinite linear';
+
+  let gameLoop = setInterval(function() {
+    if (isGameOver) {
+      clearInterval(gameLoop);
+      return;
+    }
+    birdTop += gravity;
+    bird.style.top = birdTop + 'px';
+
+    if (checkCollision()) {
+      gameOver();
+    }
+
+    score++;
+    scoreDisplay.textContent = score;
+  }, 20);
+}
+
+function checkCollision() {
+  let birdRect = bird.getBoundingClientRect();
+  let pipeRect = pipe.getBoundingClientRect();
+  let pipe2Rect = pipe2.getBoundingClientRect();
+  let groundRect = ground.getBoundingClientRect();
+
+  if (birdRect.right > pipeRect.left && birdRect.left < pipeRect.right && 
+      (birdRect.top < pipeRect.bottom || birdRect.bottom > pipe2Rect.top) ||
+      birdRect.bottom > groundRect.top) {
+    return true;
+  }
+  return false;
+}
+
+function gameOver() {
+  isGameOver = true;
+  pipe.style.animation = 'none';
+  pipe2.style.animation = 'none';
+  alert('Game Over! Your score is ' + score);
+}
+
+  </script>
+</body>
+</html>
